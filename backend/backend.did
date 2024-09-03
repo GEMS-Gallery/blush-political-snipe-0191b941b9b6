@@ -5,13 +5,23 @@ type Result =
  };
 type Page = 
  record {
+   categoryId: opt nat;
    content: opt text;
    id: nat;
    title: opt text;
  };
+type Category = 
+ record {
+   id: nat;
+   name: text;
+ };
 service : {
-  createPage: (opt text) -> (nat);
+  createCategory: (text) -> (nat);
+  createPage: (opt text, opt nat) -> (nat);
+  deleteCategory: (nat) -> (Result);
   deletePage: (nat) -> (Result);
+  getCategories: () -> (vec Category) query;
   getPages: () -> (vec Page) query;
-  updatePage: (nat, opt text, opt text) -> (Result);
+  updateCategory: (nat, text) -> (Result);
+  updatePage: (nat, opt text, opt text, opt nat) -> (Result);
 }
