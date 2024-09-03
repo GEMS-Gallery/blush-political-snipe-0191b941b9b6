@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { backend } from 'declarations/backend';
 import { Box, CircularProgress, Container, Typography, TextField, Button, List, ListItem, ListItemText } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import { useQuill } from 'react-quilljs';
+import 'quill/dist/quill.snow.css';
 
 interface Page {
   id: bigint;
@@ -13,10 +15,20 @@ const App: React.FC = () => {
   const [pages, setPages] = useState<Page[]>([]);
   const [selectedPage, setSelectedPage] = useState<Page | null>(null);
   const [loading, setLoading] = useState(true);
+  const { quill, quillRef } = useQuill();
 
   useEffect(() => {
     fetchPages();
   }, []);
+
+  useEffect(() => {
+    if (quill && selectedPage) {
+      quill.root.innerHTML = selectedPage.content || '';
+      quill.on('text-change', () => {
+        setSelectedPage(prev => prev ? { ...prev, content: quill.root.innerHTML } : null);
+      });
+    }
+  }, [quill, selectedPage]);
 
   const fetchPages = async () => {
     try {
@@ -61,12 +73,6 @@ const App: React.FC = () => {
     }
   };
 
-  const handleContentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (selectedPage) {
-      setSelectedPage({ ...selectedPage, content: event.target.value });
-    }
-  };
-
   return (
     <Container maxWidth="lg" className="min-h-screen flex">
       <Box className="w-64 border-r p-4">
@@ -107,16 +113,10 @@ const App: React.FC = () => {
               placeholder="Untitled"
               className="mb-4"
             />
-            <TextField
-              fullWidth
-              multiline
-              rows={10}
-              variant="outlined"
-              value={selectedPage.content || ''}
-              onChange={handleContentChange}
-              onBlur={updatePage}
-              placeholder="Start typing..."
-            />
+            <div ref={quillRef} />
+            <Button onClick={updatePage} variant="contained" color="primary" className="mt-4">
+              Save
+            </Button>
           </>
         ) : (
           <Typography>Select a page or create a new one</Typography>

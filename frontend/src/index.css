@@ -23,3 +23,7 @@ body {
   outline: none;
   background-color: rgba(46, 170, 220, 0.1);
 }
+
+.ql-editor {
+  min-height: 200px;
+}
