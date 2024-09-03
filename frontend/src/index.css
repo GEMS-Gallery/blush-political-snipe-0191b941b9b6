@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+}
+
+.content-block {
+  min-height: 24px;
+  padding: 3px 2px;
+  margin-bottom: 1px;
+  cursor: text;
+}
+
+.content-block:focus {
+  outline: none;
+  background-color: rgba(46, 170, 220, 0.1);
+}
