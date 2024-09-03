@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { backend } from 'declarations/backend';
 import { Box, CircularProgress, Container, Typography, TextField, Button, List, ListItem, ListItemText } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { useQuill } from 'react-quilljs';
+import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 
 interface Page {
@@ -15,20 +15,37 @@ const App: React.FC = () => {
   const [pages, setPages] = useState<Page[]>([]);
   const [selectedPage, setSelectedPage] = useState<Page | null>(null);
   const [loading, setLoading] = useState(true);
-  const { quill, quillRef } = useQuill();
+  const quillRef = useRef<Quill | null>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchPages();
   }, []);
 
   useEffect(() => {
-    if (quill && selectedPage) {
-      quill.root.innerHTML = selectedPage.content || '';
-      quill.on('text-change', () => {
-        setSelectedPage(prev => prev ? { ...prev, content: quill.root.innerHTML } : null);
+    if (editorRef.current && !quillRef.current) {
+      quillRef.current = new Quill(editorRef.current, {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            [{ header: [1, 2, false] }],
+            ['bold', 'italic', 'underline'],
+            ['image', 'code-block']
+          ]
+        },
+      });
+
+      quillRef.current.on('text-change', () => {
+        if (selectedPage && quillRef.current) {
+          setSelectedPage(prev => prev ? { ...prev, content: quillRef.current?.root.innerHTML || '' } : null);
+        }
       });
     }
-  }, [quill, selectedPage]);
+
+    if (quillRef.current && selectedPage) {
+      quillRef.current.root.innerHTML = selectedPage.content || '';
+    }
+  }, [selectedPage]);
 
   const fetchPages = async () => {
     try {
@@ -113,7 +130,7 @@ const App: React.FC = () => {
               placeholder="Untitled"
               className="mb-4"
             />
-            <div ref={quillRef} />
+            <div ref={editorRef} className="mb-4" />
             <Button onClick={updatePage} variant="contained" color="primary" className="mt-4">
               Save
             </Button>
